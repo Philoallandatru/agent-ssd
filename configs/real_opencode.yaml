@@ -1,0 +1,26 @@
+# configs/real_opencode.yaml
+# End-to-end runspec using OpencodeServerAgent against a REAL repo.
+#
+# Two paths to use this:
+#   (1) Mock mode: set OPENCODE_MOCK=1 and the agent talks to an in-process
+#       mock server (see examples/run_opencode_agent.py). Great for CI.
+#   (2) Real mode: run `opencode serve --port 9999` in a separate terminal
+#       then `OPENCODE_BASE_URL=http://127.0.0.1:9999 python -m framework.cli
+#       --config configs/real_opencode.yaml`. The agent will drive a real
+#       opencode-ai session on the configured repo.
+
+run_id: real-opencode-001
+sut_path: C:/temp/agentssd-sut
+agent_name: opencode-server
+task_ids:
+  - realistic/local_repo
+slo_seconds: 600
+runs_per_state: 1
+model_card: opencode-server/claude-sonnet-4-5
+
+# task_params:
+#   realistic/local_repo:
+#     local_path: "C:/path/to/your/local/checkout"
+#     issue: "Fix the bug described in the README"
+#     test_command: "pytest -q"
+#     expected_to_pass: true

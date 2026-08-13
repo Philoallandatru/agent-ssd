@@ -1,0 +1,15 @@
+# full_suite runs every task in v0. Use this for an end-to-end sanity check.
+# Run with: python -m framework.cli --config configs/full_suite.yaml
+
+run_id: full-suite-001
+sut_path: /tmp/agentssd-sut
+agent_name: scripted
+task_ids:
+  - write_heavy/session_persist
+  - read_heavy/monorepo_search
+  - mixed/cargo_build
+  - shared/git_worktree
+  - extreme/checkpoint_load
+slo_seconds: 60
+runs_per_state: 3
+model_card: scripted-v0

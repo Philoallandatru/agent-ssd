@@ -1,0 +1,11 @@
+# example runspec — the simplest possible end-to-end run.
+# Run with: python -m framework.cli --config configs/example.yaml
+
+run_id: example-001
+sut_path: /tmp/agentssd-sut
+agent_name: scripted
+task_ids:
+  - write_heavy/session_persist
+slo_seconds: 30
+runs_per_state: 3
+model_card: scripted-v0
