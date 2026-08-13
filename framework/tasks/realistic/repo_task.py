@@ -65,11 +65,12 @@ class RealRepoTask:
         (ctx.workdir / ".issue.md").write_text(self.issue, encoding="utf-8")
 
     def run(self, agent, ctx: TaskContext) -> TaskResult:
-        # Duck-type: must be a real opencode-style agent (not a scripted mock).
-        if getattr(agent, "name", "") != "opencode-server":
+        # Duck-type: must be a real (HTTP+SSE) server agent (not a scripted mock).
+        from framework.agents.http_sse import BaseHttpSseAgent
+        if not isinstance(agent, BaseHttpSseAgent):
             raise TypeError(
-                f"RealRepoTask needs an OpencodeServerAgent (name='opencode-server'), "
-                f"got name={getattr(agent, 'name', None)!r}. "
+                f"RealRepoTask needs a real (HTTP+SSE) server agent, got "
+                f"name={getattr(agent, 'name', None)!r}. "
                 "Real repos need a real agent; scripted mocks cannot edit code."
             )
         from framework.agents.base import AgentState

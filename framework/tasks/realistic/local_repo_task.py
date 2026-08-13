@@ -58,13 +58,13 @@ class LocalRepoTask:
         (ctx.workdir / ".issue.md").write_text(self.issue, encoding="utf-8")
 
     def run(self, agent, ctx: TaskContext) -> TaskResult:
-        # Duck-type: any agent with reset/step/trajectory_hash methods is OK.
-        # We only require a `name` attribute to be an OpencodeServerAgent-like
-        # (avoids running scripted mocks on real code).
-        if getattr(agent, "name", "") != "opencode-server":
+        # Duck-type: any real (HTTP+SSE) server agent is OK. We block scripted
+        # mocks by name. Add new server agents to REAL_AGENT_NAMES.
+        from framework.agents.http_sse import BaseHttpSseAgent
+        if not isinstance(agent, BaseHttpSseAgent):
             raise TypeError(
-                f"LocalRepoTask needs an OpencodeServerAgent (name='opencode-server'), "
-                f"got name={getattr(agent, 'name', None)!r}"
+                f"LocalRepoTask needs a real (HTTP+SSE) server agent, got "
+                f"name={getattr(agent, 'name', None)!r}. Scripted mocks can't edit code."
             )
         agent.reset(self.id, ctx.workdir)
         t0 = time.perf_counter()

@@ -1,0 +1,20 @@
+# configs/qwen_code.yaml
+# End-to-end runspec for the QwenCodeAgent (talks to a real `qwen serve`).
+#
+# Run:
+#   1. In terminal A, start the daemon:
+#        qwen serve --port 4170 --token "$MY_TOKEN"
+#   2. In terminal B:
+#        export QWEN_BASE_URL=http://127.0.0.1:4170
+#        export QWEN_SERVER_TOKEN="$MY_TOKEN"
+#        export QWEN_MODEL=qwen3-coder-plus
+#        python examples/run_qwen_code.py
+
+run_id: qwen-code-001
+sut_path: C:/temp/agentssd-sut
+agent_name: qwen-code
+task_ids:
+  - realistic/local_repo
+slo_seconds: 600
+runs_per_state: 1
+model_card: qwen3-coder-plus

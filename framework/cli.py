@@ -15,18 +15,13 @@ import sys
 from pathlib import Path
 
 from .harness import Runner, RunSpec
-from .agents import ScriptedAgent, ReplayingAgent
+from .agents import get_agent_factory
 from .reporters import ConsoleReporter, JsonReporter
 
 
 def _agent_factory_from_name(name: str):
-    """Pick the agent factory. v0 only supports scripted + replaying."""
-    if name == "scripted":
-        return lambda: ScriptedAgent(script=[])  # script is set by each task
-    elif name == "replaying":
-        return lambda: ReplayingAgent(script=[], recorded_hash="")
-    else:
-        raise ValueError(f"unknown agent: {name}; v0 only supports scripted/replaying")
+    """Pick the agent factory. Delegates to the AGENT_REGISTRY."""
+    return get_agent_factory(name)
 
 
 def main(argv=None) -> int:
@@ -44,7 +39,8 @@ def main(argv=None) -> int:
                         help="Runs per task.")
     parser.add_argument("--slo", type=float, default=30.0,
                         help="SLO seconds per task.")
-    parser.add_argument("--agent", choices=["scripted", "replaying"], default="scripted")
+    parser.add_argument("--agent", default="scripted",
+                        help="Agent name. See framework.agents.list_agents()")
     parser.add_argument("--output", type=str, default=None,
                         help="JSON output path. If omitted, no JSON is written.")
     parser.add_argument("--verbose", action="store_true")

@@ -91,6 +91,53 @@ The `OpencodeServerAgent` (in `framework/agents/opencode_server.py`)
 in-process `MockOpencodeServer` that streams a canned sequence of
 events. Same code path as Way 1 — just swap the URL.
 
+## Plug in any agent (opencode / qwen-code / pi / claude-code)
+
+The framework ships adapters for the popular CLI agents that expose an
+HTTP+SSE server. They all share `BaseHttpSseAgent` — the only differences
+are path templates and auth.
+
+| Agent       | Default URL              | Auth             | Adapter                |
+|-------------|--------------------------|------------------|------------------------|
+| opencode    | `http://127.0.0.1:9999`  | (none)           | `OpencodeServerAgent`  |
+| qwen-code   | `http://127.0.0.1:4170`  | Bearer token     | `QwenCodeAgent`        |
+| pi          | `http://127.0.0.1:7742`  | (none, override) | `PiServerAgent`        |
+| claude-code | `http://127.0.0.1:7842`  | `x-api-key`      | `ClaudeCodeAgent`      |
+
+**Pick at runtime** via `--agent` (CLI) or `RunSpec.agent_name`:
+
+```bash
+# Mock mode (no LLM, no install, fast)
+python examples/run_opencode_agent.py
+
+# Real opencode serve
+OPENCODE_BASE_URL=http://127.0.0.1:9999 python examples/run_opencode_agent.py
+
+# Real qwen-code (you've got it installed already)
+export QWEN_SERVER_TOKEN="<your --token>"
+qwen serve --port 4170 --token "$QWEN_SERVER_TOKEN"   # another terminal
+python examples/run_qwen_code.py
+```
+
+**Adding a new agent** is a one-liner — subclass `BaseHttpSseAgent`
+and override the 3 path class attributes:
+
+```python
+from framework.agents.http_sse import BaseHttpSseAgent
+
+class MyAgent(BaseHttpSseAgent):
+    name = "my-agent"
+    session_create_path  = "/api/new_session"
+    session_message_path = "/api/new_session/{sid}/send"
+    session_event_path   = "/api/new_session/{sid}/stream"
+    def __init__(self): super().__init__(base_url="http://localhost:9000")
+
+from framework.agents.registry import AGENT_REGISTRY
+AGENT_REGISTRY["my-agent"] = MyAgent
+```
+
+That's it. Now `--agent my-agent` works everywhere.
+
 ## Plug a new task in
 
 ```python
